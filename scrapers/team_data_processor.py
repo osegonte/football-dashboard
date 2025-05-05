@@ -39,64 +39,7 @@ class TeamDataProcessor:
         if not os.path.exists(file_path):
             print(f"File not found: {file_path}")
             return {"matches": 0, "teams": 0, "leagues": 0}
-    
-    def process_all_match_files(self):
-        """
-        Process all match files in the daily directory
         
-        Returns:
-            Dictionary with statistics about processed data
-        """
-        if not os.path.exists(self.daily_dir):
-            print(f"Daily directory not found: {self.daily_dir}")
-            return {"files": 0, "matches": 0, "teams": 0, "leagues": 0}
-        
-        stats = {"files": 0, "matches": 0, "teams": 0, "leagues": 0}
-        
-        for filename in os.listdir(self.daily_dir):
-            if filename.endswith('.csv') and filename.startswith('matches_'):
-                file_path = os.path.join(self.daily_dir, filename)
-                
-                print(f"Processing {filename}...")
-                file_stats = self.process_match_file(file_path)
-                
-                stats["files"] += 1
-                stats["matches"] += file_stats["matches"]
-                stats["teams"] += file_stats["teams"]
-                stats["leagues"] += file_stats["leagues"]
-        
-        return stats
-    
-    def get_team_list_for_scraper(self, output_file='teams_to_scrape.json'):
-        """
-        Generate a list of teams that need additional data
-        
-        Args:
-            output_file: Path to output JSON file
-            
-        Returns:
-            Number of teams written to file
-        """
-        # Get teams that need additional data
-        teams = DBOperations.get_teams_needing_data(limit=100)
-        
-        team_list = []
-        for team in teams:
-            team_info = {
-                'id': team.id,
-                'name': team.name,
-                'league': team.league.name if team.league else 'Unknown League',
-                'country': team.country if team.country else 'Unknown'
-            }
-            team_list.append(team_info)
-        
-        # Write to file
-        output_path = os.path.join(self.data_dir, output_file)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(team_list, f, indent=2)
-        
-        print(f"✓ Wrote {len(team_list)} teams to {output_path}")
-        return len(team_list)
         stats = {"matches": 0, "teams": 0, "leagues": 0}
         teams_added = set()
         leagues_added = set()
@@ -267,3 +210,61 @@ class TeamDataProcessor:
         except Exception as e:
             print(f"Error processing match file {file_path}: {str(e)}")
             return {"matches": 0, "teams": 0, "leagues": 0}
+    
+    def process_all_match_files(self):
+        """
+        Process all match files in the daily directory
+        
+        Returns:
+            Dictionary with statistics about processed data
+        """
+        if not os.path.exists(self.daily_dir):
+            print(f"Daily directory not found: {self.daily_dir}")
+            return {"files": 0, "matches": 0, "teams": 0, "leagues": 0}
+        
+        stats = {"files": 0, "matches": 0, "teams": 0, "leagues": 0}
+        
+        for filename in os.listdir(self.daily_dir):
+            if filename.endswith('.csv') and filename.startswith('matches_'):
+                file_path = os.path.join(self.daily_dir, filename)
+                
+                print(f"Processing {filename}...")
+                file_stats = self.process_match_file(file_path)
+                
+                stats["files"] += 1
+                stats["matches"] += file_stats["matches"]
+                stats["teams"] += file_stats["teams"]
+                stats["leagues"] += file_stats["leagues"]
+        
+        return stats
+    
+    def get_team_list_for_scraper(self, output_file='teams_to_scrape.json'):
+        """
+        Generate a list of teams that need additional data
+        
+        Args:
+            output_file: Path to output JSON file
+            
+        Returns:
+            Number of teams written to file
+        """
+        # Get teams that need additional data
+        teams = DBOperations.get_teams_needing_data(limit=100)
+        
+        team_list = []
+        for team in teams:
+            team_info = {
+                'id': team.id,
+                'name': team.name,
+                'league': team.league.name if team.league else 'Unknown League',
+                'country': team.country if team.country else 'Unknown'
+            }
+            team_list.append(team_info)
+        
+        # Write to file
+        output_path = os.path.join(self.data_dir, output_file)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(team_list, f, indent=2)
+        
+        print(f"✓ Wrote {len(team_list)} teams to {output_path}")
+        return len(team_list)
