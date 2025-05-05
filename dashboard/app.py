@@ -10,241 +10,352 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from database.operations import DBOperations
 from pipeline.pipeline_runner import PipelineRunner
+from dashboard.visualizations import DashboardVisualizations
 
-app = Flask(__name__)
-app.secret_key = 'football_dashboard_secret_key'  # For flash messages
+# Add new routes to app
 
-# Global variables for pipeline status
-pipeline_status = {
-    "running": False,
-    "last_run": None,
-    "stats": None
-}
-
-def format_date(date_obj):
-    """Format date for display"""
-    if not date_obj:
-        return ""
-    return date_obj.strftime("%Y-%m-%d")
-
-def format_datetime(date_obj):
-    """Format datetime for display"""
-    if not date_obj:
-        return ""
-    return date_obj.strftime("%Y-%m-%d %H:%M")
-
-@app.template_filter('date')
-def date_filter(date_obj):
-    """Template filter for dates"""
-    return format_date(date_obj)
-
-@app.template_filter('datetime')
-def datetime_filter(date_obj):
-    """Template filter for datetimes"""
-    return format_datetime(date_obj)
-
-def run_pipeline_async():
-    """Run the pipeline in a separate thread"""
-    global pipeline_status
+@app.route('/stats')
+def stats():
+    """Statistics dashboard page"""
+    # Get data for charts and visualizations
+    upcoming_matches = DBOperations.get_upcoming_matches(days=14)
+    all_teams = DBOperations.get_all_teams()
+    all_leagues = DBOperations.get_all_leagues()
     
-    try:
-        pipeline_status["running"] = True
-        
-        # Run the pipeline
-        runner = PipelineRunner()
-        stats = runner.run_full_pipeline()
-        
-        # Update status
-        pipeline_status["last_run"] = datetime.now()
-        pipeline_status["stats"] = stats
-        pipeline_status["running"] = False
-        
-    except Exception as e:
-        pipeline_status["running"] = False
-        pipeline_status["error"] = str(e)
-
-@app.route('/')
-def index():
-    """Dashboard home page"""
-    # Get upcoming matches
-    matches = DBOperations.get_upcoming_matches(days=7)
+    # Get visualizations data
+    viz = DashboardVisualizations()
     
-    # Get current stats
-    team_count = len(DBOperations.get_all_teams())
-    league_count = len(DBOperations.get_all_leagues())
-    match_count = len(matches)
+    # Matches by date
+    matches_by_date = viz.get_matches_by_date(upcoming_matches, days=7)
+    matches_by_date_data = viz.prepare_chart_data_for_matches_by_date(matches_by_date)
     
-    # Group matches by date
-    matches_by_date = {}
-    for match in matches:
-        match_date = format_date(match.match_date)
-        if match_date not in matches_by_date:
-            matches_by_date[match_date] = []
-        matches_by_date[match_date].append(match)
+    # Matches by league
+    matches_by_league = viz.get_matches_by_league(upcoming_matches, top_n=10)
+    matches_by_league_data = viz.prepare_chart_data_for_leagues(matches_by_league)
+    
+    # Team stats
+    team_stats = viz.get_team_stats(all_teams)
+    team_coverage_data = viz.prepare_chart_data_for_team_coverage(team_stats)
+    
+    # Data coverage stats
+    coverage_stats = viz.get_data_coverage_stats(all_teams, upcoming_matches)
+    
+    # Basic counts
+    match_count = len(upcoming_matches)
+    team_count = len(all_teams)
+    league_count = len(all_leagues)
     
     return render_template(
-        'index.html',
-        matches_by_date=matches_by_date,
+        'stats.html',
+        matches_by_date_data=matches_by_date_data,
+        matches_by_league_data=matches_by_league_data,
+        teams_by_league_data=team_stats['by_league'],
+        teams_by_country_data=team_stats['by_country'],
+        team_coverage_data=team_coverage_data,
+        coverage_stats=coverage_stats,
+        team_stats=team_stats,
+        match_count=match_count,
         team_count=team_count,
         league_count=league_count,
-        match_count=match_count,
         pipeline_status=pipeline_status
     )
 
-@app.route('/fixtures')
-def fixtures():
-    """Fixtures page"""
-    # Get filter parameters
-    days = request.args.get('days', 7, type=int)
-    league_id = request.args.get('league', None, type=int)
+@app.route('/search')
+def search():
+    """Search page for teams and matches"""
+    query = request.args.get('q', '')
     
-    # Get upcoming matches
-    matches = DBOperations.get_upcoming_matches(days=days)
+    results = {
+        'teams': [],
+        'matches': [],
+        'leagues': []
+    }
     
-    # Filter by league if specified
-    if league_id:
-        matches = [m for m in matches if m.league_id == league_id]
+    if query and len(query) >= 2:
+        # Search teams
+        teams = DBOperations.search_teams(query)
+        results['teams'] = teams
+        
+        # Search matches
+        matches = DBOperations.search_matches(query)
+        results['matches'] = matches
+        
+        # Search leagues
+        leagues = DBOperations.search_leagues(query)
+        results['leagues'] = leagues
     
-    # Get leagues for filter dropdown
-    leagues = DBOperations.get_all_leagues()
+    return render_template(
+        'search.html',
+        query=query,
+        results=results,
+        total_results=len(results['teams']) + len(results['matches']) + len(results['leagues'])
+    )
+
+@app.route('/league/<int:league_id>')
+def league_detail(league_id):
+    """League detail page"""
+    # Get league
+    league = DBOperations.get_league_by_id(league_id)
+    if not league:
+        flash('League not found', 'error')
+        return redirect(url_for('fixtures'))
+    
+    # Get teams in this league
+    teams = DBOperations.get_teams_by_league(league_id)
+    
+    # Get upcoming matches in this league
+    upcoming_matches = DBOperations.get_upcoming_matches_by_league(league_id, days=30)
     
     # Group matches by date
     matches_by_date = {}
-    for match in matches:
+    for match in upcoming_matches:
         match_date = format_date(match.match_date)
         if match_date not in matches_by_date:
             matches_by_date[match_date] = []
         matches_by_date[match_date].append(match)
     
     return render_template(
-        'fixtures.html',
+        'league_detail.html',
+        league=league,
+        teams=teams,
         matches_by_date=matches_by_date,
-        leagues=leagues,
-        selected_league=league_id,
-        days=days
+        team_count=len(teams),
+        match_count=len(upcoming_matches)
     )
 
-@app.route('/teams')
-def teams():
-    """Teams page"""
-    # Get teams
-    all_teams = DBOperations.get_all_teams()
+# Add search capabilities to the DBOperations class
+def add_search_methods():
+    # Add these methods to the DBOperations class
     
-    # Get filter parameters
-    league_id = request.args.get('league', None, type=int)
+    @staticmethod
+    def search_teams(query):
+        """Search teams by name or country
+        
+        Args:
+            query: Search query string
+            
+        Returns:
+            List of Team objects
+        """
+        session = get_db_session()
+        try:
+            like_query = f"%{query}%"
+            teams = session.query(Team).filter(
+                (Team.name.ilike(like_query)) | 
+                (Team.country.ilike(like_query))
+            ).order_by(Team.name).all()
+            
+            return teams
+        finally:
+            session.close()
     
-    # Filter by league if specified
-    if league_id:
-        teams_list = [t for t in all_teams if t.league_id == league_id]
-    else:
-        teams_list = all_teams
+    @staticmethod
+    def search_matches(query):
+        """Search matches by team name, league, or venue
+        
+        Args:
+            query: Search query string
+            
+        Returns:
+            List of Match objects
+        """
+        session = get_db_session()
+        try:
+            like_query = f"%{query}%"
+            matches = session.query(Match).filter(
+                (Match.home_team_name.ilike(like_query)) | 
+                (Match.away_team_name.ilike(like_query)) |
+                (Match.venue.ilike(like_query))
+            ).order_by(Match.match_date).all()
+            
+            # Also search by league name
+            league_matches = session.query(Match).join(League).filter(
+                League.name.ilike(like_query)
+            ).order_by(Match.match_date).all()
+            
+            # Combine results (avoid duplicates)
+            result = list(set(matches + league_matches))
+            
+            return result
+        finally:
+            session.close()
     
-    # Get leagues for filter dropdown
-    leagues = DBOperations.get_all_leagues()
+    @staticmethod
+    def search_leagues(query):
+        """Search leagues by name or country
+        
+        Args:
+            query: Search query string
+            
+        Returns:
+            List of League objects
+        """
+        session = get_db_session()
+        try:
+            like_query = f"%{query}%"
+            leagues = session.query(League).filter(
+                (League.name.ilike(like_query)) | 
+                (League.country.ilike(like_query))
+            ).order_by(League.name).all()
+            
+            return leagues
+        finally:
+            session.close()
     
-    return render_template(
-        'teams.html',
-        teams=teams_list,
-        leagues=leagues,
-        selected_league=league_id
-    )
+    @staticmethod
+    def get_league_by_id(league_id):
+        """Get league by ID
+        
+        Args:
+            league_id: League ID
+            
+        Returns:
+            League object or None
+        """
+        session = get_db_session()
+        try:
+            return session.query(League).filter(League.id == league_id).first()
+        finally:
+            session.close()
+    
+    @staticmethod
+    def get_teams_by_league(league_id):
+        """Get teams in a league
+        
+        Args:
+            league_id: League ID
+            
+        Returns:
+            List of Team objects
+        """
+        session = get_db_session()
+        try:
+            return session.query(Team).filter(Team.league_id == league_id).order_by(Team.name).all()
+        finally:
+            session.close()
+    
+    @staticmethod
+    def get_upcoming_matches_by_league(league_id, days=7):
+        """Get upcoming matches in a league
+        
+        Args:
+            league_id: League ID
+            days: Number of days to look ahead
+            
+        Returns:
+            List of Match objects
+        """
+        session = get_db_session()
+        try:
+            today = datetime.now().date()
+            end_date = today + timedelta(days=days)
+            
+            matches = session.query(Match).filter(
+                Match.league_id == league_id,
+                func.date(Match.match_date) >= today,
+                func.date(Match.match_date) <= end_date
+            ).order_by(Match.match_date).all()
+            
+            return matches
+        finally:
+            session.close()
 
-@app.route('/team/<int:team_id>')
-def team_detail(team_id):
-    """Team detail page"""
-    # Get team
-    team = DBOperations.get_team_by_id(team_id)
-    if not team:
-        flash('Team not found', 'error')
-        return redirect(url_for('teams'))
-    
-    # Get team matches
-    matches = DBOperations.get_team_matches(team_id)
-    
-    # Get team data
-    team_data = team.team_data if team.team_data else None
-    
-    return render_template(
-        'team_detail.html',
-        team=team,
-        team_data=team_data,
-        past_matches=matches.get('past', []),
-        future_matches=matches.get('future', [])
-    )
+# Add methods to DBOperations class
+setattr(DBOperations, 'search_teams', add_search_methods.__globals__['DBOperations'].search_teams)
+setattr(DBOperations, 'search_matches', add_search_methods.__globals__['DBOperations'].search_matches)
+setattr(DBOperations, 'search_leagues', add_search_methods.__globals__['DBOperations'].search_leagues)
+setattr(DBOperations, 'get_league_by_id', add_search_methods.__globals__['DBOperations'].get_league_by_id)
+setattr(DBOperations, 'get_teams_by_league', add_search_methods.__globals__['DBOperations'].get_teams_by_league)
+setattr(DBOperations, 'get_upcoming_matches_by_league', add_search_methods.__globals__['DBOperations'].get_upcoming_matches_by_league)
 
-@app.route('/run-pipeline', methods=['POST'])
-def run_pipeline():
-    """Run the pipeline"""
-    global pipeline_status
-    
-    if pipeline_status["running"]:
-        flash('Pipeline is already running', 'warning')
-        return redirect(url_for('index'))
-    
-    # Start pipeline in a separate thread
-    thread = threading.Thread(target=run_pipeline_async)
-    thread.daemon = True
-    thread.start()
-    
-    flash('Pipeline started', 'success')
-    return redirect(url_for('index'))
+# Update existing functions
 
-@app.route('/pipeline-status')
-def get_pipeline_status():
-    """Get current pipeline status as JSON"""
-    global pipeline_status
-    
-    status_copy = pipeline_status.copy()
-    if status_copy["last_run"]:
-        status_copy["last_run"] = status_copy["last_run"].strftime("%Y-%m-%d %H:%M:%S")
-    
-    return jsonify(status_copy)
+# Update the base template context processor to include the current date
+@app.context_processor
+def inject_now():
+    return {'now': datetime.now()}
 
-@app.route('/export-teams')
-def export_teams():
-    """Export teams data to JSON"""
-    # Get teams
-    all_teams = DBOperations.get_all_teams()
-    
-    # Convert teams to JSON-serializable format
-    teams_list = []
-    for team in all_teams:
-        team_data = {
-            'id': team.id,
-            'name': team.name,
-            'league': team.league.name if team.league else 'Unknown League',
-            'country': team.country if team.country else 'Unknown',
-            'has_team_data': bool(team.team_data)
+# Update the team_detail route to show team data
+def get_updated_team_detail_route():
+    def team_detail(team_id):
+        """Team detail page with enhanced data display"""
+        # Get team
+        team = DBOperations.get_team_by_id(team_id)
+        if not team:
+            flash('Team not found', 'error')
+            return redirect(url_for('teams'))
+        
+        # Get team matches
+        matches = DBOperations.get_team_matches(team_id)
+        
+        # Get team data
+        team_data = team.team_data if team.team_data else None
+        
+        # Team statistics (placeholder for now)
+        team_stats = {
+            'matches_played': len(matches.get('past', [])),
+            'upcoming_matches': len(matches.get('future', [])),
+            'in_league': team.league.name if team.league else 'Unknown League'
         }
-        teams_list.append(team_data)
+        
+        return render_template(
+            'team_detail_enhanced.html',
+            team=team,
+            team_data=team_data,
+            team_stats=team_stats,
+            past_matches=matches.get('past', []),
+            future_matches=matches.get('future', [])
+        )
     
-    return jsonify(teams_list)
+    return team_detail
 
-@app.route('/export-fixtures')
-def export_fixtures():
-    """Export fixture data to JSON"""
-    # Get upcoming matches
-    matches = DBOperations.get_upcoming_matches(days=14)
+# Update the main app route to include more statistics
+def get_updated_index_route():
+    def index():
+        """Enhanced dashboard home page"""
+        # Get upcoming matches
+        matches = DBOperations.get_upcoming_matches(days=7)
+        
+        # Get current stats
+        team_count = len(DBOperations.get_all_teams())
+        league_count = len(DBOperations.get_all_leagues())
+        match_count = len(matches)
+        
+        # Get teams with data
+        teams = DBOperations.get_all_teams()
+        teams_with_data = sum(1 for team in teams if team.team_data)
+        
+        # Data coverage percentage
+        data_coverage = round((teams_with_data / team_count * 100) if team_count > 0 else 0, 1)
+        
+        # Group matches by date
+        matches_by_date = {}
+        for match in matches:
+            match_date = format_date(match.match_date)
+            if match_date not in matches_by_date:
+                matches_by_date[match_date] = []
+            matches_by_date[match_date].append(match)
+        
+        return render_template(
+            'index_enhanced.html',
+            matches_by_date=matches_by_date,
+            team_count=team_count,
+            league_count=league_count,
+            match_count=match_count,
+            teams_with_data=teams_with_data,
+            data_coverage=data_coverage,
+            pipeline_status=pipeline_status
+        )
     
-    # Convert matches to JSON-serializable format
-    fixtures_list = []
-    for match in matches:
-        fixture_data = {
-            'id': match.id,
-            'home_team': match.home_team_name,
-            'away_team': match.away_team_name,
-            'match_date': format_date(match.match_date),
-            'start_time': match.start_time,
-            'league': match.league.name if match.league else 'Unknown League',
-            'venue': match.venue if match.venue else 'Unknown'
-        }
-        fixtures_list.append(fixture_data)
-    
-    return jsonify(fixtures_list)
+    return index
 
-def main():
-    """Main function to run the Flask app"""
-    app.run(debug=True, host='0.0.0.0', port=5000)
-
-if __name__ == '__main__':
-    main()
+# How to apply these updates to your app:
+# 1. Create the new templates: stats.html, search.html, league_detail.html, team_detail_enhanced.html, index_enhanced.html
+# 2. Import the visualizations module
+# 3. Apply the route updates:
+#    - Add the new routes: app.add_url_rule('/stats', 'stats', stats)
+#    - Add the new routes: app.add_url_rule('/search', 'search', search)
+#    - Add the new routes: app.add_url_rule('/league/<int:league_id>', 'league_detail', league_detail)
+#    - Update existing routes: app.view_functions['team_detail'] = get_updated_team_detail_route()
+#    - Update existing routes: app.view_functions['index'] = get_updated_index_route()
+# 4. Make sure to add the missing imports: from sqlalchemy import func

@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics - Football Data Dashboard{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Page Header -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">Dashboard Statistics</h1>
+                <p class="card-text">Visualizations and statistics for football data.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Data Coverage Stats -->
+    <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                <div class="card-header">
+                    <i class="fas fa-trophy me-2"></i> Top Leagues by Match Count
+                </div>
+                <div class="card-body">
+                    <canvas id="matchesByLeagueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    
+    <!-- Teams by League -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-users me-2"></i> Teams by League
+            </div>
+            <div class="card-body">
+                <canvas id="teamsByLeagueChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Teams by Country -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-globe me-2"></i> Teams by Country
+            </div>
+            <div class="card-body">
+                <canvas id="teamsByCountryChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Data Pipeline Stats -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-cogs me-2"></i> Pipeline Statistics
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Metric</th>
+                                <th class="text-end">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Total Matches</td>
+                                <td class="text-end">{{ match_count }}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Teams</td>
+                                <td class="text-end">{{ team_count }}</td>
+                            </tr>
+                            <tr>
+                                <td>Total Leagues</td>
+                                <td class="text-end">{{ league_count }}</td>
+                            </tr>
+                            <tr>
+                                <td>Teams with Data</td>
+                                <td class="text-end">{{ team_stats.with_data }}</td>
+                            </tr>
+                            <tr>
+                                <td>Last Pipeline Run</td>
+                                <td class="text-end">
+                                    {% if pipeline_status.last_run %}
+                                        {{ pipeline_status.last_run|datetime }}
+                                    {% else %}
+                                        Never
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-3">
+                    <form action="{{ url_for('run_pipeline') }}" method="post">
+                        <button type="submit" class="btn btn-primary" {% if pipeline_status.running %}disabled{% endif %}>
+                            <i class="fas fa-sync-alt me-2"></i> Run Pipeline Now
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Chart.js configurations and data
+document.addEventListener('DOMContentLoaded', function() {
+    // Team Coverage Chart
+    const teamCoverageData = {{ team_coverage_data|tojson }};
+    const teamCoverageCtx = document.getElementById('teamCoverageChart').getContext('2d');
+    new Chart(teamCoverageCtx, {
+        type: 'pie',
+        data: {
+            labels: teamCoverageData.map(item => item.name),
+            datasets: [{
+                label: 'Team Data Coverage',
+                data: teamCoverageData.map(item => item.value),
+                backgroundColor: [
+                    'rgba(50, 130, 184, 0.7)',
+                    'rgba(224, 224, 224, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(50, 130, 184, 1)',
+                    'rgba(224, 224, 224, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Team Data Coverage'
+                }
+            }
+        }
+    });
+    
+    // Matches by Date Chart
+    const matchesByDateData = {{ matches_by_date_data|tojson }};
+    const matchesByDateCtx = document.getElementById('matchesByDateChart').getContext('2d');
+    new Chart(matchesByDateCtx, {
+        type: 'bar',
+        data: {
+            labels: matchesByDateData.map(item => item.date),
+            datasets: [{
+                label: 'Number of Matches',
+                data: matchesByDateData.map(item => item.matches),
+                backgroundColor: 'rgba(15, 76, 117, 0.7)',
+                borderColor: 'rgba(15, 76, 117, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Upcoming Matches by Date'
+                }
+            }
+        }
+    });
+    
+    // Matches by League Chart
+    const matchesByLeagueData = {{ matches_by_league_data|tojson }};
+    const matchesByLeagueCtx = document.getElementById('matchesByLeagueChart').getContext('2d');
+    new Chart(matchesByLeagueCtx, {
+        type: 'horizontalBar',
+        type: 'bar',
+        data: {
+            labels: matchesByLeagueData.map(item => item.name),
+            datasets: [{
+                label: 'Number of Matches',
+                data: matchesByLeagueData.map(item => item.matches),
+                backgroundColor: 'rgba(50, 130, 184, 0.7)',
+                borderColor: 'rgba(50, 130, 184, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Top Leagues by Match Count'
+                }
+            }
+        }
+    });
+    
+    // Teams by League Chart
+    const teamsByLeagueData = {{ teams_by_league_data|tojson }};
+    const teamsByLeagueCtx = document.getElementById('teamsByLeagueChart').getContext('2d');
+    new Chart(teamsByLeagueCtx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(teamsByLeagueData),
+            datasets: [{
+                label: 'Number of Teams',
+                data: Object.values(teamsByLeagueData),
+                backgroundColor: [
+                    'rgba(15, 76, 117, 0.7)',
+                    'rgba(50, 130, 184, 0.7)',
+                    'rgba(187, 225, 250, 0.7)',
+                    'rgba(27, 38, 44, 0.7)',
+                    'rgba(187, 225, 250, 0.5)',
+                    'rgba(15, 76, 117, 0.5)',
+                    'rgba(50, 130, 184, 0.5)',
+                    'rgba(187, 225, 250, 0.3)',
+                    'rgba(27, 38, 44, 0.5)',
+                    'rgba(187, 225, 250, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(15, 76, 117, 1)',
+                    'rgba(50, 130, 184, 1)',
+                    'rgba(187, 225, 250, 1)',
+                    'rgba(27, 38, 44, 1)',
+                    'rgba(187, 225, 250, 1)',
+                    'rgba(15, 76, 117, 1)',
+                    'rgba(50, 130, 184, 1)',
+                    'rgba(187, 225, 250, 1)',
+                    'rgba(27, 38, 44, 1)',
+                    'rgba(187, 225, 250, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    display: true
+                },
+                title: {
+                    display: true,
+                    text: 'Teams by League'
+                }
+            }
+        }
+    });
+    
+    // Teams by Country Chart
+    const teamsByCountryData = {{ teams_by_country_data|tojson }};
+    const teamsByCountryCtx = document.getElementById('teamsByCountryChart').getContext('2d');
+    new Chart(teamsByCountryCtx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(teamsByCountryData),
+            datasets: [{
+                label: 'Number of Teams',
+                data: Object.values(teamsByCountryData),
+                backgroundColor: 'rgba(27, 38, 44, 0.7)',
+                borderColor: 'rgba(27, 38, 44, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                },
+                title: {
+                    display: true,
+                    text: 'Teams by Country'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+            <div class="card-header">
+                <i class="fas fa-percentage me-2"></i> Data Coverage
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="coverage-stat text-center mb-4">
+                            <h3 class="display-4">{{ coverage_stats.team_data_coverage.value }}%</h3>
+                            <p class="mb-1">Team Data Coverage</p>
+                            <small class="text-muted">{{ coverage_stats.team_data_coverage.covered }} out of {{ coverage_stats.team_data_coverage.total }} teams</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="coverage-stat text-center mb-4">
+                            <h3 class="display-4">{{ coverage_stats.match_venue_coverage.value }}%</h3>
+                            <p class="mb-1">Match Venue Coverage</p>
+                            <small class="text-muted">{{ coverage_stats.match_venue_coverage.covered }} out of {{ coverage_stats.match_venue_coverage.total }} matches</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="team-coverage-chart mt-4">
+                    <canvas id="teamCoverageChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Matches by Date -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-calendar-alt me-2"></i> Matches by Date
+            </div>
+            <div class="card-body">
+                <canvas id="matchesByDateChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Matches by League -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
