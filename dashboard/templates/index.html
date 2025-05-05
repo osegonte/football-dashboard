@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Football Data Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Dashboard Header -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">Football Data Dashboard</h1>
+                <p class="card-text">Track upcoming fixtures and team information for football matches.</p>
+                <div id="pipeline-status" class="pipeline-status pipeline-idle">
+                    <i class="fas fa-info-circle me-2"></i> Checking pipeline status...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dashboard Stats -->
+    <div class="col-md-4">
+        <div class="dashboard-stat">
+            <i class="fas fa-calendar-alt mb-3" style="font-size: 2rem; color: var(--primary-color);"></i>
+            <h2>{{ match_count }}</h2>
+            <p>Upcoming Matches</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="dashboard-stat">
+            <i class="fas fa-users mb-3" style="font-size: 2rem; color: var(--primary-color);"></i>
+            <h2>{{ team_count }}</h2>
+            <p>Teams</p>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="dashboard-stat">
+            <i class="fas fa-trophy mb-3" style="font-size: 2rem; color: var(--primary-color);"></i>
+            <h2>{{ league_count }}</h2>
+            <p>Leagues</p>
+        </div>
+    </div>
+    
+    <!-- Pipeline Controls -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-cogs me-2"></i> Pipeline Controls
+            </div>
+            <div class="card-body">
+                <p>The data pipeline collects match data, processes teams, and prepares for team data scraping.</p>
+                <form action="{{ url_for('run_pipeline') }}" method="post">
+                    <button type="submit" class="btn btn-primary" {% if pipeline_status.running %}disabled{% endif %}>
+                        <i class="fas fa-sync-alt me-2"></i> Run Pipeline Now
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upcoming Matches -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-calendar-alt me-2"></i> Upcoming Matches
+            </div>
+            <div class="card-body">
+                {% if matches_by_date %}
+                    {% for date, matches in matches_by_date.items() %}
+                        <h5 class="mt-3 mb-3">{{ date }}</h5>
+                        <div class="row">
+                            {% for match in matches %}
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="card match-card">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="league-badge">
+                                                    {% if match.league %}
+                                                        {{ match.league.name }}
+                                                    {% else %}
+                                                        Unknown League
+                                                    {% endif %}
+                                                </span>
+                                                <span class="status-badge status-{{ match.status|lower if match.status else 'scheduled' }}">
+                                                    {{ match.start_time if match.start_time else 'TBD' }}
+                                                </span>
+                                            </div>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="text-end" style="width: 40%;">
+                                                    <strong>{{ match.home_team_name }}</strong>
+                                                </div>
+                                                <div class="text-center" style="width: 20%;">
+                                                    <span class="fw-bold">vs</span>
+                                                </div>
+                                                <div class="text-start" style="width: 40%;">
+                                                    <strong>{{ match.away_team_name }}</strong>
+                                                </div>
+                                            </div>
+                                            {% if match.venue %}
+                                                <div class="text-center mt-2 small text-muted">
+                                                    <i class="fas fa-map-marker-alt me-1"></i> {{ match.venue }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('fixtures') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-list me-2"></i> View All Fixtures
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-center py-4">
+                        <i class="fas fa-info-circle me-2"></i> No upcoming matches found.
+                        Please run the pipeline to fetch match data.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
