@@ -20,7 +20,7 @@ logger = logging.getLogger("main")
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 # Import components
-from database.db_setup import init_database
+from app.database.db_setup import init_database
 from pipeline.pipeline_runner import PipelineRunner
 from pipeline.scheduler import PipelineScheduler
 from dashboard.app import app

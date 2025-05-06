@@ -1,0 +1,429 @@
+{% extends "base.html" %}
+
+{% block title %}User Guide - Football Data Dashboard{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item active">User Guide</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Page Header -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">User Guide</h1>
+                <p class="card-text">Welcome to the Football Data Dashboard! This guide will help you navigate and make the most of the dashboard features.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Table of Contents -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-list me-2"></i> Contents
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="#dashboard-overview" class="list-group-item list-group-item-action">Dashboard Overview</a>
+                    <a href="#fixtures-guide" class="list-group-item list-group-item-action">Using Fixtures</a>
+                    <a href="#teams-guide" class="list-group-item list-group-item-action">Team Information</a>
+                    <a href="#stats-guide" class="list-group-item list-group-item-action">Statistics Guide</a>
+                    <a href="#search-tips" class="list-group-item list-group-item-action">Search Tips</a>
+                    <a href="#data-pipeline" class="list-group-item list-group-item-action">Data Pipeline</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Guide Content -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <!-- Dashboard Overview -->
+                <section id="dashboard-overview" class="mb-5">
+                    <h2>Dashboard Overview</h2>
+                    <p>The Football Data Dashboard provides comprehensive information about football matches, teams, and leagues. Here's a quick overview of the main sections:</p>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-home me-2 text-primary"></i> Home</h5>
+                                    <p>The dashboard homepage displays key statistics and upcoming matches. This is a great starting point to get a quick overview of football activities.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-calendar-alt me-2 text-primary"></i> Fixtures</h5>
+                                    <p>View upcoming football matches, filter by date range or league, and see match details like venue and status.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-users me-2 text-primary"></i> Teams</h5>
+                                    <p>Browse team information, including details about stadiums, managers, and upcoming matches for each team.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5><i class="fas fa-chart-bar me-2 text-primary"></i> Stats</h5>
+                                    <p>Explore visualizations and statistics about matches, teams, and leagues to gain deeper insights.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i> <strong>Tip:</strong> Use the navigation bar at the top to switch between different sections. The search box in the top right allows you to find specific information quickly.
+                    </div>
+                </section>
+                
+                <!-- Fixtures Guide -->
+                <section id="fixtures-guide" class="mb-5">
+                    <h2>Using Fixtures</h2>
+                    <p>The Fixtures page displays upcoming football matches organized by date. Here's how to make the most of this section:</p>
+                    
+                    <h5 class="mt-4">Filtering Fixtures</h5>
+                    <p>You can customize which matches are displayed using the filters at the top of the page:</p>
+                    <ul>
+                        <li><strong>Days Ahead</strong> - Choose how many days in the future to display (3, 7, 14, or 30 days)</li>
+                        <li><strong>League</strong> - Filter matches by specific football leagues</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">Understanding Match Status</h5>
+                    <p>Matches are displayed with status badges that indicate their current state:</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><span class="status-badge status-scheduled">Scheduled</span> - Upcoming match with confirmed time</li>
+                                <li><span class="status-badge status-live">Live</span> - Match currently in progress</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><span class="status-badge status-finished">Finished</span> - Completed match</li>
+                                <li><span class="status-badge status-postponed">Postponed</span> - Match delayed to a later date</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <h5 class="mt-4">Exporting Fixture Data</h5>
+                    <p>At the bottom of the fixtures page, you can export the match data in JSON format for use in other applications.</p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i> <strong>Tip:</strong> Click on team names in the fixtures list to navigate directly to detailed team information.
+                    </div>
+                </section>
+                
+                <!-- Teams Guide -->
+                <section id="teams-guide" class="mb-5">
+                    <h2>Team Information</h2>
+                    <p>The Teams section provides detailed information about football teams. Here's what you can find:</p>
+                    
+                    <h5 class="mt-4">Team Listing</h5>
+                    <p>The main Teams page displays all teams in the database. You can filter teams by league using the dropdown at the top of the page.</p>
+                    
+                    <h5 class="mt-4">Team Detail Pages</h5>
+                    <p>Clicking on a team name takes you to a detailed team profile with:</p>
+                    <ul>
+                        <li><strong>Basic Information</strong> - Team name, league, country, etc.</li>
+                        <li><strong>Team Details</strong> - Stadium information, manager, founded year, and team description</li>
+                        <li><strong>Upcoming Matches</strong> - Next fixtures for the team</li>
+                        <li><strong>Past Matches</strong> - Recently completed matches</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">Data Coverage</h5>
+                    <p>Teams with a green checkmark (<i class="fas fa-check text-success"></i>) have additional detailed information available. Teams without this mark have basic information only.</p>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i> <strong>Tip:</strong> If you're looking for specific teams, use the search box in the navigation bar rather than scrolling through the full list.
+                    </div>
+                </section>
+                
+                <!-- Stats Guide -->
+                <section id="stats-guide" class="mb-5">
+                    <h2>Statistics Guide</h2>
+                    <p>The Stats page provides visualizations and data analysis of football information. Here's how to interpret the different charts:</p>
+                    
+                    <h5 class="mt-4">Data Coverage Statistics</h5>
+                    <p>These charts show how much detailed information is available for teams and matches in the database:</p>
+                    <ul>
+                        <li><strong>Team Data Coverage</strong> - Percentage of teams with detailed information</li>
+                        <li><strong>Match Venue Coverage</strong> - Percentage of matches with venue information</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">Matches by Date</h5>
+                    <p>This bar chart shows how many matches are scheduled for each upcoming date. Higher bars indicate busier match days.</p>
+                    
+                    <h5 class="mt-4">League Statistics</h5>
+                    <p>These charts show distributions of teams and matches by league and country:</p>
+                    <ul>
+                        <li><strong>Top Leagues by Match Count</strong> - Which leagues have the most scheduled matches</li>
+                        <li><strong>Teams by League</strong> - Distribution of teams across different leagues</li>
+                        <li><strong>Teams by Country</strong> - Distribution of teams by country</li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i> <strong>Tip:</strong> Hover over chart elements to see exact values. Most charts update automatically when new data is added via the pipeline.
+                    </div>
+                </section>
+                
+                <!-- Search Tips -->
+                <section id="search-tips" class="mb-5">
+                    <h2>Search Tips</h2>
+                    <p>The search functionality allows you to find specific information across the dashboard. Here are some tips for effective searching:</p>
+                    
+                    <h5 class="mt-4">What You Can Search For</h5>
+                    <ul>
+                        <li><strong>Teams</strong> - Search by team name or country (e.g., "Manchester United", "Spain")</li>
+                        <li><strong>Leagues</strong> - Search by league name (e.g., "Premier League", "La Liga")</li>
+                        <li><strong>Venues</strong> - Search by stadium or venue name (e.g., "Old Trafford")</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">Search Tips</h5>
+                    <ul>
+                        <li>Use at least 2 characters for search terms</li>
+                        <li>Searches are case-insensitive (uppercase/lowercase doesn't matter)</li>
+                        <li>Partial matches are supported (e.g., searching for "United" will find "Manchester United")</li>
+                        <li>Search results are organized by category (Teams, Leagues, Matches)</li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i> <strong>Tip:</strong> The search box is available from every page in the top navigation bar. On mobile devices, use the floating search button in the bottom right corner.
+                    </div>
+                </section>
+                
+                <!-- Data Pipeline -->
+                <section id="data-pipeline" class="mb-5">
+                    <h2>Data Pipeline</h2>
+                    <p>The Football Data Dashboard automatically collects and updates data through a pipeline process. Here's how it works:</p>
+                    
+                    <h5 class="mt-4">How Data Is Collected</h5>
+                    <p>The pipeline collects data from multiple sources:</p>
+                    <ul>
+                        <li><strong>Match Data</strong> - Scheduled matches are collected from SofaScore and other sources</li>
+                        <li><strong>Team Data</strong> - Detailed team information is gathered from team websites, Wikipedia, and sports databases</li>
+                        <li><strong>League Data</strong> - League information is extracted and maintained</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">Running the Pipeline</h5>
+                    <p>There are several ways the pipeline runs:</p>
+                    <ul>
+                        <li><strong>Automatic Updates</strong> - The pipeline runs on a scheduled basis to keep data current</li>
+                        <li><strong>Manual Updates</strong> - You can trigger the pipeline by clicking "Update Data" in the navigation bar</li>
+                    </ul>
+                    
+                    <h5 class="mt-4">Pipeline Status Indicators</h5>
+                    <p>The current state of the pipeline is shown with these indicators:</p>
+                    <ul>
+                        <li><span class="pipeline-idle py-1 px-2"><i class="fas fa-info-circle me-2"></i> Pipeline is idle</span> - No pipeline activity</li>
+                        <li><span class="pipeline-running py-1 px-2"><i class="fas fa-sync-alt fa-spin me-2"></i> Pipeline is running</span> - Data update in progress</li>
+                        <li><span class="pipeline-success py-1 px-2"><i class="fas fa-check-circle me-2"></i> Pipeline completed</span> - Update finished successfully</li>
+                        <li><span class="pipeline-error py-1 px-2"><i class="fas fa-exclamation-circle me-2"></i> Pipeline error</span> - An issue occurred during the update</li>
+                    </ul>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-lightbulb me-2"></i> <strong>Tip:</strong> After running the pipeline, you may need to refresh the page to see the latest data in the dashboard.
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FAQ Section -->
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-question-circle me-2"></i> Frequently Asked Questions
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="faqAccordion">
+                    <!-- FAQ 1 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading1">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1">
+                                How often is the data updated?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>The dashboard data is updated in several ways:</p>
+                                <ul>
+                                    <li>Automatically every 12 hours</li>
+                                    <li>Manually when a user clicks "Update Data"</li>
+                                    <li>During scheduled maintenance windows</li>
+                                </ul>
+                                <p>You can see when the data was last updated at the bottom of any page.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ 2 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                                What leagues are covered in the dashboard?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>The dashboard covers a wide range of football leagues, including:</p>
+                                <ul>
+                                    <li>Major European leagues (Premier League, La Liga, Bundesliga, Serie A, Ligue 1)</li>
+                                    <li>European competitions (Champions League, Europa League)</li>
+                                    <li>International tournaments and qualifiers</li>
+                                    <li>Various domestic leagues from around the world</li>
+                                </ul>
+                                <p>The specific leagues available depend on the data sources and can vary over time.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ 3 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                                Why are some teams missing detailed information?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>Detailed team information is collected gradually based on several factors:</p>
+                                <ul>
+                                    <li>The team data scraper prioritizes teams from major leagues</li>
+                                    <li>Some teams may have limited information available from source websites</li>
+                                    <li>Team data collection happens in batches to respect website rate limits</li>
+                                </ul>
+                                <p>The dashboard is continuously improving its coverage. Running the data pipeline will gradually add more team information over time.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ 4 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading4">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                                How can I find matches for a specific team?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <p>There are several ways to find matches for a specific team:</p>
+                                <ol>
+                                    <li>Use the search box to search for the team name</li>
+                                    <li>Navigate to the Teams page, find the team, and click on it to see its upcoming and past matches</li>
+                                    <li>Go to the Fixtures page and visually scan for the team (you can filter by league first if you know which league the team is in)</li>
+                                </ol>
+                                <p>The team detail page provides the most comprehensive view of a team's matches.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block help_guide %}
+<!-- This help guide is empty because the entire page is a guide -->
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Highlight the section briefly
+                    targetElement.classList.add('highlight');
+                    setTimeout(() => {
+                        targetElement.classList.remove('highlight');
+                    }, 2000);
+                }
+            });
+        });
+        
+        // Check if there's a hash in the URL and scroll to that section
+        if (window.location.hash) {
+            const targetElement = document.querySelector(window.location.hash);
+            if (targetElement) {
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Highlight the section briefly
+                    targetElement.classList.add('highlight');
+                    setTimeout(() => {
+                        targetElement.classList.remove('highlight');
+                    }, 2000);
+                }, 300);
+            }
+        }
+    });
+</script>
+
+<style>
+    /* Section highlight animation */
+    @keyframes highlight-pulse {
+        0% { background-color: transparent; }
+        50% { background-color: rgba(50, 130, 184, 0.1); }
+        100% { background-color: transparent; }
+    }
+    
+    .highlight {
+        animation: highlight-pulse 2s ease;
+        border-radius: var(--radius-md);
+    }
+    
+    /* Section styling */
+    section {
+        padding-top: 1rem;
+        border-bottom: 1px solid var(--neutral-light);
+    }
+    
+    section:last-child {
+        border-bottom: none;
+    }
+    
+    /* Adjust accordion styling */
+    .accordion-button:not(.collapsed) {
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+    }
+    
+    /* Status badge examples */
+    .status-badge, .pipeline-idle, .pipeline-running, .pipeline-success, .pipeline-error {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        border-radius: var(--radius-sm);
+        white-space: nowrap;
+    }
+</style>
+{% endblock %}

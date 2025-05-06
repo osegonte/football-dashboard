@@ -1,87 +1,195 @@
-
-<div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-            <a class="nav-link {% if request.path == url_for('index') %}active{% endif %}" href="{{ url_for('index') }}">
-                <i class="fas fa-home me-1"></i> Home
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.path == url_for('fixtures') %}active{% endif %}" href="{{ url_for('fixtures') }}">
-                <i class="fas fa-calendar-alt me-1"></i> Fixtures
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.path == url_for('teams') %}active{% endif %}" href="{{ url_for('teams') }}">
-                <i class="fas fa-users me-1"></i> Teams
-            </a>
-        </li>
-        <li class="nav-item">
-            <form action="{{ url_for('run_pipeline') }}" method="post" class="d-inline">
-                <button type="submit" class="nav-link border-0 bg-transparent">
-                    <i class="fas fa-sync-alt me-1"></i> Update Data
-                </button>
-            </form>
-        </li>
-    </ul>
-</div>
-```
-
-2. Replace it with the updated navigation including the new Stats and Search pages:
-
-```html
-<div class="collapse navbar-collapse" id="navbarNav">
-    <ul class="navbar-nav me-auto">
-        <li class="nav-item">
-            <a class="nav-link {% if request.path == url_for('index') %}active{% endif %}" href="{{ url_for('index') }}">
-                <i class="fas fa-home me-1"></i> Home
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.path == url_for('fixtures') %}active{% endif %}" href="{{ url_for('fixtures') }}">
-                <i class="fas fa-calendar-alt me-1"></i> Fixtures
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.path == url_for('teams') %}active{% endif %}" href="{{ url_for('teams') }}">
-                <i class="fas fa-users me-1"></i> Teams
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link {% if request.path == url_for('stats') %}active{% endif %}" href="{{ url_for('stats') }}">
-                <i class="fas fa-chart-bar me-1"></i> Stats
-            </a>
-        </li>
-    </ul>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %}Football Data Dashboard{% endblock %}</title>
     
-    <form action="{{ url_for('search') }}" method="get" class="d-flex me-3">
-        <div class="input-group">
-            <input type="text" class="form-control" name="q" placeholder="Search..." aria-label="Search">
-            <button class="btn btn-outline-light" type="submit">
-                <i class="fas fa-search"></i>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" rel="stylesheet">
+    <!-- Custom Dashboard Styles -->
+    <link href="{{ url_for('static', filename='css/dashboard-styles.css') }}" rel="stylesheet">
+    
+    <!-- Extra head content from child templates -->
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-futbol me-2"></i> Football Dashboard
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
             </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('index') %}active{% endif %}" href="{{ url_for('index') }}">
+                            <i class="fas fa-home me-1"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('fixtures') %}active{% endif %}" href="{{ url_for('fixtures') }}">
+                            <i class="fas fa-calendar-alt me-1"></i> Fixtures
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('teams') %}active{% endif %}" href="{{ url_for('teams') }}">
+                            <i class="fas fa-users me-1"></i> Teams
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == url_for('stats') %}active{% endif %}" href="{{ url_for('stats') }}">
+                            <i class="fas fa-chart-bar me-1"></i> Stats
+                        </a>
+                    </li>
+                </ul>
+                
+                <form action="{{ url_for('search') }}" method="get" class="d-flex me-3">
+                    <div class="input-group search-box">
+                        <input type="text" class="form-control" name="q" placeholder="Search..." 
+                               value="{{ query if query is defined else '' }}" aria-label="Search" required>
+                        <button class="btn btn-outline-light" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <form action="{{ url_for('run_pipeline') }}" method="post" class="d-inline">
+                            <button type="submit" class="nav-link border-0 bg-transparent" 
+                                    {% if pipeline_status and pipeline_status.running %}disabled{% endif %}>
+                                <i class="fas fa-sync-alt me-1 {% if pipeline_status and pipeline_status.running %}fa-spin{% endif %}"></i> 
+                                Update Data
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </form>
+    </nav>
     
-    <ul class="navbar-nav">
-        <li class="nav-item">
-            <form action="{{ url_for('run_pipeline') }}" method="post" class="d-inline">
-                <button type="submit" class="nav-link border-0 bg-transparent">
-                    <i class="fas fa-sync-alt me-1"></i> Update Data
-                </button>
-            </form>
-        </li>
-    </ul>
-</div>
-```
+    <!-- Floating Search Button (Mobile Only) -->
+    <div class="d-block d-lg-none position-fixed bottom-0 end-0 m-3" style="z-index: 1000;">
+        <a href="{{ url_for('search') }}" class="btn btn-primary rounded-circle" 
+           style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-search"></i>
+        </a>
+    </div>
 
-3. Also add the following right after <body> tag to show a link to the new search page:
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container mt-3">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
-```html
-<!-- Floating Search Button (Mobile Only) -->
-<div class="d-block d-lg-none position-fixed bottom-0 end-0 m-3" style="z-index: 1000;">
-    <a href="{{ url_for('search') }}" class="btn btn-primary rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
-        <i class="fas fa-search"></i>
-    </a>
-</div>
-```
+    <!-- Page Header with Breadcrumbs -->
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+                {% block breadcrumbs %}{% endblock %}
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Main Content Container -->
+    <div class="container my-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Help Guide (can be toggled to show/hide) -->
+    <div class="container mb-4">
+        <div class="guide-panel">
+            <div class="guide-toggle">
+                <h5 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i> Help & Tips
+                </h5>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="guide-content">
+                {% block help_guide %}
+                <p>Welcome to the Football Data Dashboard! Here are some quick tips:</p>
+                <ul>
+                    <li>Use the navigation bar at the top to switch between different sections</li>
+                    <li>The <strong>Fixtures</strong> page shows upcoming football matches</li>
+                    <li>The <strong>Teams</strong> page provides detailed information about football teams</li>
+                    <li>The <strong>Stats</strong> page displays visualizations and statistics</li>
+                    <li>Use the search box to find specific teams, leagues, or matches</li>
+                    <li>Click "Update Data" to refresh the dashboard with the latest information</li>
+                </ul>
+                <p>Look for <span class="help-tooltip" data-tooltip="This is a help tooltip">i</span> icons throughout the dashboard for more specific guidance.</p>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">Football Data Dashboard</p>
+                    <p class="text-muted small mb-0">Data last updated: {{ now|datetime }}</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-calendar-alt me-1"></i> Current date: {{ now|date }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap and jQuery JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Dashboard Guide JS -->
+    <script src="{{ url_for('static', filename='js/dashboard-guide.js') }}"></script>
+    
+    <!-- Pipeline Status Controller -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set pipeline status data from server-side variables
+            const pipelineStatus = document.getElementById('pipeline-status');
+            if (pipelineStatus) {
+                {% if pipeline_status %}
+                pipelineStatus.dataset.status = "{{ pipeline_status.running|lower }}";
+                
+                {% if pipeline_status.running %}
+                pipelineStatus.innerHTML = '<i class="fas fa-sync-alt fa-spin me-2"></i> Pipeline is currently running...';
+                {% elif pipeline_status.last_status == 'success' %}
+                pipelineStatus.innerHTML = '<i class="fas fa-check-circle me-2"></i> Pipeline completed successfully';
+                {% elif pipeline_status.last_status == 'error' %}
+                pipelineStatus.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i> Pipeline encountered an error';
+                {% else %}
+                pipelineStatus.innerHTML = '<i class="fas fa-info-circle me-2"></i> Pipeline is idle';
+                {% endif %}
+                {% endif %}
+            }
+        });
+    </script>
+    <!-- Custom Dashboard Styles -->
+<link href="{{ url_for('static', filename='css/dashboard-styles.css') }}" rel="stylesheet">
+<!-- Dashboard Guide JS -->
+<script src="{{ url_for('static', filename='js/dashboard-guide.js') }}"></script>    
+    <!-- Extra scripts from child templates -->
+    {% block scripts %}{% endblock %}
+</body>
+</html>

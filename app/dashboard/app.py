@@ -487,3 +487,8 @@ def inject_now():
 # Initialize the app
 if __name__ == '__main__':
     app.run(debug=True)
+
+@app.route('/guide')
+def user_guide():
+    """User Guide page"""
+    return render_template('user_guide.html')
