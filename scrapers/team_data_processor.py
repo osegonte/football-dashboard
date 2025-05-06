@@ -48,7 +48,7 @@ class TeamDataProcessor:
             # Read the match data
             matches_df = pd.read_csv(file_path)
             
-            # Process each match in a clean session
+            # Create a single session for all operations
             session = get_db_session()
             
             try:
@@ -63,8 +63,7 @@ class TeamDataProcessor:
                     country = match.get('country', None)
                     
                     # Check if league exists
-                    league_query = session.query(League).filter(League.name == league_name)
-                    league = league_query.first()
+                    league = session.query(League).filter(League.name == league_name).first()
                     
                     if not league:
                         # Create new league
@@ -89,8 +88,7 @@ class TeamDataProcessor:
                                 print(f"Could not parse date: {date_str}")
                     
                     # Check if match exists
-                    match_query = session.query(Match).filter(Match.external_id == external_id)
-                    db_match = match_query.first()
+                    db_match = session.query(Match).filter(Match.external_id == external_id).first()
                     
                     if not db_match:
                         # Create new match
@@ -109,6 +107,7 @@ class TeamDataProcessor:
                         )
                         session.add(db_match)
                         session.flush()  # Flush to get the ID but don't commit yet
+                        stats["matches"] += 1
                     else:
                         # Update existing match
                         db_match.home_team_name = match['home_team']
@@ -120,13 +119,11 @@ class TeamDataProcessor:
                         db_match.venue = match.get('venue', db_match.venue)
                         db_match.round = match.get('round', db_match.round)
                         db_match.last_updated = datetime.utcnow()
-                    
-                    stats["matches"] += 1
+                        stats["matches"] += 1
                     
                     # Process home team
                     home_team_name = match['home_team']
-                    home_team_query = session.query(Team).filter(Team.name == home_team_name)
-                    home_team = home_team_query.first()
+                    home_team = session.query(Team).filter(Team.name == home_team_name).first()
                     
                     if not home_team:
                         # Create new team
@@ -146,8 +143,7 @@ class TeamDataProcessor:
                     
                     # Process away team
                     away_team_name = match['away_team']
-                    away_team_query = session.query(Team).filter(Team.name == away_team_name)
-                    away_team = away_team_query.first()
+                    away_team = session.query(Team).filter(Team.name == away_team_name).first()
                     
                     if not away_team:
                         # Create new team
@@ -165,34 +161,12 @@ class TeamDataProcessor:
                             self.processed_teams.add(away_team_name)
                             stats["teams"] += 1
                     
-                    # Link teams to match
-                    from sqlalchemy import and_
+                    # Link teams to match (if not already linked)
+                    if home_team not in db_match.teams:
+                        db_match.teams.append(home_team)
                     
-                    # Check if home team is already linked
-                    home_team_link = session.query(Team.id).filter(
-                        and_(
-                            Team.id == home_team.id,
-                            Match.id == db_match.id,
-                            Team.matches.any(id=db_match.id)
-                        )
-                    ).first()
-                    
-                    if not home_team_link:
-                        # Link home team
-                        home_team.matches.append(db_match)
-                    
-                    # Check if away team is already linked
-                    away_team_link = session.query(Team.id).filter(
-                        and_(
-                            Team.id == away_team.id,
-                            Match.id == db_match.id,
-                            Team.matches.any(id=db_match.id)
-                        )
-                    ).first()
-                    
-                    if not away_team_link:
-                        # Link away team
-                        away_team.matches.append(db_match)
+                    if away_team not in db_match.teams:
+                        db_match.teams.append(away_team)
                 
                 # Commit all changes in one transaction
                 session.commit()

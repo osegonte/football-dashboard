@@ -134,3 +134,66 @@
                                                                         <span class="text-muted">Unknown</span>
                                                                     {% endif %}
                                                                 </td>
+                                                                <td class="fw-bold text-end">{{ match.home_team_name }}</td>
+                                                                <td class="text-center">vs</td>
+                                                                <td class="fw-bold">{{ match.away_team_name }}</td>
+                                                                <td>{{ match.venue if match.venue else 'TBD' }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info text-center mt-4">
+                            <i class="fas fa-info-circle me-2"></i> No results found for "{{ query }}".
+                            <p class="mt-2 mb-0">Try using different keywords or check your spelling.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <!-- Search Instructions -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-info-circle me-2"></i> Search Tips
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-users fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="text-center">Find Teams</h5>
+                            <p class="text-center">Search for team names or countries to find teams.</p>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-trophy fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="text-center">Find Leagues</h5>
+                            <p class="text-center">Search for league names or countries to find competitions.</p>
+                        </div>
+                        <div class="col-md-4 mb-4">
+                            <div class="text-center mb-3">
+                                <i class="fas fa-calendar-alt fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="text-center">Find Matches</h5>
+                            <p class="text-center">Search for team names, venues, or leagues to find matches.</p>
+                        </div>
+                    </div>
+                    <div class="alert alert-info text-center mt-3">
+                        <i class="fas fa-lightbulb me-2"></i> Enter at least 2 characters to start searching.
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

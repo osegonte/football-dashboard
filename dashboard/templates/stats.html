@@ -20,15 +20,57 @@
     
     <!-- Data Coverage Stats -->
     <div class="col-md-6 mb-4">
-                    <div class="card h-100">
-                <div class="card-header">
-                    <i class="fas fa-trophy me-2"></i> Top Leagues by Match Count
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-percentage me-2"></i> Data Coverage
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="coverage-stat text-center mb-4">
+                            <h3 class="display-4">{{ coverage_stats.team_data_coverage.value }}%</h3>
+                            <p class="mb-1">Team Data Coverage</p>
+                            <small class="text-muted">{{ coverage_stats.team_data_coverage.covered }} out of {{ coverage_stats.team_data_coverage.total }} teams</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="coverage-stat text-center mb-4">
+                            <h3 class="display-4">{{ coverage_stats.match_venue_coverage.value }}%</h3>
+                            <p class="mb-1">Match Venue Coverage</p>
+                            <small class="text-muted">{{ coverage_stats.match_venue_coverage.covered }} out of {{ coverage_stats.match_venue_coverage.total }} matches</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <canvas id="matchesByLeagueChart"></canvas>
+                <div class="team-coverage-chart mt-4">
+                    <canvas id="teamCoverageChart"></canvas>
                 </div>
             </div>
         </div>
+    </div>
+    
+    <!-- Matches by Date -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-calendar-alt me-2"></i> Matches by Date
+            </div>
+            <div class="card-body">
+                <canvas id="matchesByDateChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Matches by League -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <i class="fas fa-trophy me-2"></i> Top Leagues by Match Count
+            </div>
+            <div class="card-body">
+                <canvas id="matchesByLeagueChart"></canvas>
+            </div>
+        </div>
+    </div>
     
     <!-- Teams by League -->
     <div class="col-md-6 mb-4">
@@ -193,7 +235,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const matchesByLeagueData = {{ matches_by_league_data|tojson }};
     const matchesByLeagueCtx = document.getElementById('matchesByLeagueChart').getContext('2d');
     new Chart(matchesByLeagueCtx, {
-        type: 'horizontalBar',
         type: 'bar',
         data: {
             labels: matchesByLeagueData.map(item => item.name),
@@ -319,45 +360,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
-            <div class="card-header">
-                <i class="fas fa-percentage me-2"></i> Data Coverage
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="coverage-stat text-center mb-4">
-                            <h3 class="display-4">{{ coverage_stats.team_data_coverage.value }}%</h3>
-                            <p class="mb-1">Team Data Coverage</p>
-                            <small class="text-muted">{{ coverage_stats.team_data_coverage.covered }} out of {{ coverage_stats.team_data_coverage.total }} teams</small>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="coverage-stat text-center mb-4">
-                            <h3 class="display-4">{{ coverage_stats.match_venue_coverage.value }}%</h3>
-                            <p class="mb-1">Match Venue Coverage</p>
-                            <small class="text-muted">{{ coverage_stats.match_venue_coverage.covered }} out of {{ coverage_stats.match_venue_coverage.total }} matches</small>
-                        </div>
-                    </div>
-                </div>
-                <div class="team-coverage-chart mt-4">
-                    <canvas id="teamCoverageChart"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Matches by Date -->
-    <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header">
-                <i class="fas fa-calendar-alt me-2"></i> Matches by Date
-            </div>
-            <div class="card-body">
-                <canvas id="matchesByDateChart"></canvas>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Matches by League -->
-    <div class="col-md-6 mb-4">
-        <div class="card h-100">
