@@ -1,0 +1,50 @@
+2025-05-06 18:35:03,170 - pipeline - INFO - Starting full pipeline run...
+2025-05-06 18:35:03,170 - pipeline - INFO - Scraping match data for next 7 days...
+2025-05-06 18:35:03,179 - WDM - INFO - ====== WebDriver manager ======
+2025-05-06 18:35:03,251 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-06 18:35:03,333 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-06 18:35:03,397 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-06 18:35:03,531 - WDM - INFO - WebDriver version 135.0.7049.114 selected
+2025-05-06 18:35:03,533 - WDM - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/mac-arm64/chromedriver-mac-arm64.zip
+2025-05-06 18:35:03,533 - WDM - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/mac-arm64/chromedriver-mac-arm64.zip
+2025-05-06 18:35:03,581 - WDM - INFO - Driver downloading response is 200
+2025-05-06 18:35:04,167 - WDM - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-06 18:35:04,276 - WDM - INFO - Driver has been saved in cache [/Users/osegonte/.wdm/drivers/chromedriver/mac64/135.0.7049.114]
+2025-05-06 18:35:36,255 - pipeline - INFO - Match scraping completed: {'days_processed': 8, 'total_matches': 2499}
+2025-05-06 18:35:36,256 - pipeline - INFO - Processing match data to extract team information...
+2025-05-06 18:35:38,047 - pipeline - INFO - Team data processing completed: {'files': 8, 'matches': 2499, 'teams': 1913, 'leagues': 188}
+2025-05-06 18:35:38,047 - pipeline - INFO - Preparing team list for team data scraping...
+2025-05-06 18:35:38,048 - pipeline - ERROR - Error preparing team list: Parent instance <Team at 0x127d98650> is not bound to a Session; lazy load operation of attribute 'league' cannot proceed (Background on this error at: https://sqlalche.me/e/20/bhk3)
+2025-05-06 18:35:38,048 - pipeline - INFO - Pipeline completed successfully: {'matches_scraped': 2499, 'files_created': 8, 'matches_processed': 2499, 'teams_extracted': 1913, 'leagues_extracted': 188, 'teams_to_scrape': 0}
+2025-05-06 18:39:45,130 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://188.136.27.4:8080
+2025-05-06 18:39:45,130 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-06 18:39:45,130 - werkzeug - INFO -  * Restarting with stat
+2025-05-06 18:39:45,545 - werkzeug - WARNING -  * Debugger is active!
+2025-05-06 18:39:45,555 - werkzeug - INFO -  * Debugger PIN: 650-648-033
+2025-05-06 18:40:48,943 - werkzeug - INFO - 127.0.0.1 - - [06/May/2025 18:40:48] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-05-06 18:40:48,956 - werkzeug - INFO - 127.0.0.1 - - [06/May/2025 18:40:48] "GET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-05-06 18:40:48,958 - werkzeug - INFO - 127.0.0.1 - - [06/May/2025 18:40:48] "GET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-05-06 18:40:48,978 - werkzeug - INFO - 127.0.0.1 - - [06/May/2025 18:40:48] "GET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-05-06 18:40:48,988 - werkzeug - INFO - 127.0.0.1 - - [06/May/2025 18:40:48] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-05-06 18:41:27,766 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://188.136.27.4:8080
+2025-05-06 18:41:27,766 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-06 18:41:27,766 - werkzeug - INFO -  * Restarting with stat
+2025-05-06 18:41:28,178 - werkzeug - WARNING -  * Debugger is active!
+2025-05-06 18:41:28,183 - werkzeug - INFO -  * Debugger PIN: 650-648-033
+2025-05-06 18:41:35,706 - werkzeug - INFO - 127.0.0.1 - - [06/May/2025 18:41:35] "[35m[1mGET / HTTP/1.1[0m" 500 -
+2025-05-06 18:41:35,712 - werkzeug - INFO - 127.0.0.1 - - [06/May/2025 18:41:35] "GET /?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+2025-05-06 18:41:35,712 - werkzeug - INFO - 127.0.0.1 - - [06/May/2025 18:41:35] "GET /?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+2025-05-06 18:41:35,716 - werkzeug - INFO - 127.0.0.1 - - [06/May/2025 18:41:35] "GET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+2025-05-06 18:41:35,723 - werkzeug - INFO - 127.0.0.1 - - [06/May/2025 18:41:35] "[36mGET /?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+2025-05-06 18:42:24,575 - werkzeug - INFO - 90.151.171.106 - - [06/May/2025 18:42:24] "[33mCONNECT 90.151.171.106:443 HTTP/1.1[0m" 404 -
+2025-05-06 18:42:24,599 - werkzeug - INFO - 90.151.171.106 - - [06/May/2025 18:42:24] "[33mGET http://90.151.171.106/ip.php?Z70246303613Q1 HTTP/1.1[0m" 404 -
+2025-05-06 18:42:29,490 - werkzeug - ERROR - 90.151.171.106 - - [06/May/2025 18:42:29] code 400, message Bad request syntax ('\x04\x01\x00PZ\x97«j0\x00')
+2025-05-06 18:42:29,490 - werkzeug - INFO - 90.151.171.106 - - [06/May/2025 18:42:29] "[31m[1m\x04\x01\x00PZ\x97«j0\x00[0m" 400 -
+2025-05-06 18:42:34,608 - werkzeug - ERROR - 90.151.171.106 - - [06/May/2025 18:42:34] code 400, message Bad request syntax ('\x05\x01\x00')
+2025-05-06 18:42:34,608 - werkzeug - INFO - 90.151.171.106 - - [06/May/2025 18:42:34] "[31m[1m\x05\x01\x00[0m" 400 -

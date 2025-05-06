@@ -1,0 +1,6 @@
+README.md
+setup.py
+football_dashboard.egg-info/PKG-INFO
+football_dashboard.egg-info/SOURCES.txt
+football_dashboard.egg-info/dependency_links.txt
+football_dashboard.egg-info/top_level.txt
